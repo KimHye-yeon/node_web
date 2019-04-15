@@ -7,12 +7,9 @@ router.get('/best', function(req, res, next) {
   res.send( { msg : 'hello', a : 1 });
 });
 
-router.get('/best', function(req, res, next) {
-  res.send( { msg : 'best', a : 2 });
+router.get('/', function(req, res, next) {
+  res.send( { msg : 'users', a : 3 });
 });
-
-router.use('/test', require('./test'));
-router.use('/user', require('./user'));
 
 /* GET home page. */
 router.all('*', function(req, res, next) {
