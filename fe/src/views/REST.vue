@@ -1,9 +1,21 @@
 <template>
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
+      <v-btn
+             absolute
+             dark
+             fab
+             bottom
+             right
+             color="pink"
+             @click="mdUp"
+           >
+             <v-icon>add</v-icon>
+      </v-btn>
+
+  <!--
       <v-flex xs12 sm3>
         <v-card>
-
           <v-card-title primary-title>
             <div>
               <h3 class="headline mb-0">get</h3>
@@ -19,8 +31,8 @@
           </v-card-actions>
 
         </v-card>
-
       </v-flex>
+
       <v-flex xs12 sm3>
         <v-card>
 
@@ -75,7 +87,83 @@
           </v-card-actions>
         </v-card>
       </v-flex>
+    -->
+
+    <v-flex xs12 sm6 md4 v-for="user in users" :key="user._id">
+       <v-card>
+         <v-img
+           src="https://cdn.vuetifyjs.com/images/cards/desert.jpg"
+           aspect-ratio="2.75"
+         ></v-img>
+
+         <v-card-title primary-title>
+           <div>
+             <h3 class="headline mb-0">{{user.name}}</h3>
+             <div> {{ user.age }} </div>
+           </div>
+         </v-card-title>
+
+         <v-card-actions>
+           <v-btn flat color="orange" @click="putDialog(user)">수정</v-btn>
+           <v-btn flat color="error" @click="delUser(user._id)">삭제</v-btn>
+         </v-card-actions>
+       </v-card>
+     </v-flex>
+
+      <v-dialog v-model="dialog" persistent max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">User Profile</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container grid-list-md>
+            <v-layout wrap>
+              <v-flex xs12 sm6 md4>
+                <v-text-field
+                  label="Name" required v-model = "userName"></v-text-field>
+              </v-flex>
+
+              <v-flex xs12 sm6>
+                <v-select
+                  :items="userAges"
+                  label="Age"
+                  required
+                  v-model = "userAge"
+
+                ></v-select>
+              </v-flex>
+            </v-layout>
+          </v-container>
+          <small>*indicates required field</small>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" flat @click="dialog = false">Close</v-btn>
+          <v-btn color="blue darken-1" flat @click="postUser">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     </v-layout>
+
+    <v-snackbar
+      v-model="snackbar"
+      :bottom="y === 'bottom'"
+      :left="x === 'left'"
+      :multi-line="mode === 'multi-line'"
+      :right="x === 'right'"
+      :timeout="timeout"
+      :top="y === 'top'"
+      :vertical="mode === 'vertical'"
+    >
+      {{ sbMsg }}
+      <v-btn
+        color="pink"
+        flat
+        @click="snackbar = false"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
   </v-container>
 </template>
 <script>
@@ -87,11 +175,21 @@ export default {
       getMd: '',
       postMd: '',
       putMd: '',
-      delMd: ''
+      delMd: '',
+      dialog: false,
+      userAges: [],
+      userAge: 0,
+      userName: '',
+      snackbar: false,
+      sbMessage: ''
     }
   },
+
   mounted () {
+    for (let i = 10; i < 40; i++) this.userAges.push(i) // 폼 나이 데이터 넣기
+    this.getUsers()
   },
+
   methods: {
     getReq () {
       axios.get('http://localhost:3000/api/user', {
@@ -104,9 +202,11 @@ export default {
           console.error(e.message)
         })
     },
+
     postReq () {
       axios.post('http://localhost:3000/api/user', {
-        user: 'postMan'
+        name: '마이스터', age: 12 // req.body
+        // user: 'postMan'
       })
         .then((r) => {
           this.postMd = JSON.stringify(r.data)
@@ -115,6 +215,7 @@ export default {
           console.error(e.message)
         })
     },
+
     putReq () {
       axios.put('http://localhost:3000/api/user', {
         user: 'putMan'
@@ -126,6 +227,7 @@ export default {
           console.error(e.message)
         })
     },
+
     delReq () {
       axios.delete('http://localhost:3000/api/user')
         .then((r) => {
@@ -134,6 +236,76 @@ export default {
         .catch((e) => {
           console.error(e.message)
         })
+    },
+
+    mdUp() {
+      this.dialog = true
+      console.log("mdUp()")
+    },
+
+    pop (msg) {
+      this.snackbar = true
+      this.sbMsg = msg
+    },
+
+    postUser () {
+      this.dialog = false
+      axios.post('http://localhost:3000/api/user', {
+        name: this.userName, age: this.userAge
+      })
+        .then((r) => {
+          this.pop('사용자가 등록되었습니다.')
+          this.getUsers()
+        })
+        .catch((e) => {
+          this.pop(e.message)
+        })
+    },
+
+    getUsers() {
+      axios.get('http://localhost:3000/api/user', {
+        user: 'getMan'
+      })
+      .then((r) => {
+        this.users = r.data.users
+        console.log(r);
+      })
+      .catch((e) => {
+        this.pop(e.message)
+      })
+    },
+
+    putUser (id) {
+        this.dialog = false
+        axios.put(`http://localhost:3000/api/user/${this.putId}`, {
+            name: this.userName,
+            age: this.userAge
+          })
+          .then((r) => {
+            this.pop('사용자 수정 완료')
+            this.getUsers()
+          })
+          .catch((e) => {
+            this.pop(e.message)
+          })
+      },
+
+    delUser (id) {
+      axios.delete(`http://localhost:3000/api/user/${id}`)
+        .then((r) => {
+          this.pop('사용자 삭제 완료')
+          this.getUsers()
+        })
+        .catch((e) => {
+          this.pop(e.message)
+        })
+    },
+
+    putDialog (user) {
+      this.putId = user._id
+      this.dialog = true
+      this.userName = user.name
+      this.userAge = user.age
     }
   }
 }
