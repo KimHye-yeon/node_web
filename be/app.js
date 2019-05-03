@@ -73,9 +73,9 @@ mongoose.connect('mongodb://localhost:27017/local', { useNewUrlParser: true }, (
    console.log('mongoose connected!')
 
    //쓰기
-   User.create({ name: '하하' })
-       .then(r => console.log(r))
-        .catch(e => console.error(e))
+   // User.create({ name: '하하' })
+   //     .then(r => console.log(r))
+   //      .catch(e => console.error(e))
 
    //읽기
    // User.find()

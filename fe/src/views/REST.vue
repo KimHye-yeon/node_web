@@ -138,6 +138,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" flat @click="putUser">수정</v-btn>
           <v-btn color="blue darken-1" flat @click="dialog = false">Close</v-btn>
           <v-btn color="blue darken-1" flat @click="postUser">Save</v-btn>
         </v-card-actions>
@@ -263,19 +264,20 @@ export default {
     },
 
     getUsers() {
+      this.dialog = false
       axios.get('http://localhost:3000/api/user', {
         user: 'getMan'
       })
       .then((r) => {
         this.users = r.data.users
-        console.log(r);
+        console.log(r)
       })
       .catch((e) => {
         this.pop(e.message)
       })
     },
 
-    putUser (id) {
+    putUser () {
         this.dialog = false
         axios.put(`http://localhost:3000/api/user/${this.putId}`, {
             name: this.userName,
@@ -290,16 +292,16 @@ export default {
           })
       },
 
-    delUser (id) {
-      axios.delete(`http://localhost:3000/api/user/${id}`)
-        .then((r) => {
-          this.pop('사용자 삭제 완료')
-          this.getUsers()
-        })
-        .catch((e) => {
-          this.pop(e.message)
-        })
-    },
+  delUser (id) {
+    axios.delete(`http://localhost:3000/api/user/${id}`)
+      .then((r) => {
+        this.pop('사용자 삭제 완료')
+        this.getUsers()
+      })
+      .catch((e) => {
+        this.pop(e.message)
+      })
+  },
 
     putDialog (user) {
       this.putId = user._id
