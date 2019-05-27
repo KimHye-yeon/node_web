@@ -1,0 +1,32 @@
+<meat charset = "utf-8">
+  <style>
+    #text_box {
+      width: 620px;
+      height: 500px;
+    }
+  </style>
+
+  <div>
+    <textarea id="text_box" readonly></textarea>
+  </div>
+    <div>
+      <form id="chating">
+        <div>
+          name : <input id = "name" type ="text">
+          message : <input id = "msg" type = "text">
+          <input type = "button" value = "send" onclick="send()" />
+          </div>
+      </form>
+    </div>
+
+    <script src = "/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+      function send() {
+        socket.emit('receive', document.getElementById("name").value, document.getElementById("msg").value);
+        document.getElementById("msg").value="";
+      }
+      socket.on('client_receive', function (msg) {
+        document.getElementById("text_box").value += msg + "\n";
+      });
+    </script>
